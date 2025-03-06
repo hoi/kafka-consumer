@@ -1,7 +1,19 @@
 require 'kafka'
 
-kafka_url = ENV['KAFKA_URL'] || 'localhost:9092'
-kafka = Kafka.new([kafka_url], client_id: "consumer_app")
+# Get Kafka URL from Heroku environment variables
+kafka_urls = ENV['KAFKA_URL'].split(',')
+
+# Remove 'kafka+ssl://' prefix to make it compatible with ruby-kafka
+kafka_brokers = kafka_urls.map { |url| url.sub(/^kafka\+ssl:\/\//, '') }
+
+# Configure Kafka client with SSL options
+kafka = Kafka.new(
+  kafka_brokers,
+  client_id: "consumer_app",
+  ssl_ca_cert: ENV['KAFKA_TRUSTED_CERT'],
+  ssl_client_cert: ENV['KAFKA_CLIENT_CERT'],
+  ssl_client_cert_key: ENV['KAFKA_CLIENT_CERT_KEY']
+)
 
 consumer = kafka.consumer(group_id: "books_group")
 consumer.subscribe("books")
