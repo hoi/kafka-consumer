@@ -16,8 +16,8 @@ kafka = Kafka.new(
   ssl_verify_hostname: false  # <-- Disable hostname verification
 )
 
-consumer = kafka.consumer(group_id: "james-60768.books_group")
-consumer.subscribe("james-60768.books")
+consumer = kafka.consumer(group_id: "#{ENV['KAFKA_PREFIX']}books_group")
+consumer.subscribe("#{ENV['KAFKA_PREFIX']}books")
 
 puts "Consumer started, waiting for messages..."
 
@@ -31,4 +31,3 @@ begin
 rescue Kafka::ProcessingError => e
   puts "Error processing message: #{e}"
 end
-
